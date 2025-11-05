@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konwerter papieru</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; margin: 0; 
+    }
+    input[type=number] { -moz-appearance: textfield; }
+    .input-focus:focus {
+      outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+  <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-lg">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Konwerter papieru</h1>
+    <div class="space-y-6">
+      <div>
+        <label for="weightInput" class="block text-sm font-medium text-gray-600 mb-1">Masa papieru</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">kg</span>
+          <input type="number" id="weightInput" placeholder="0" min="0"
+            class="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg font-medium text-gray-700 input-focus transition-colors">
+        </div>
+      </div>
+      <div>
+        <label for="widthInput" class="block text-sm font-medium text-gray-600 mb-1">Szerokość papieru</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">mm</span>
+          <input type="number" id="widthInput" placeholder="0" min="0"
+            class="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg font-medium text-gray-700 input-focus transition-colors">
+        </div>
+      </div>
+      <div>
+        <label for="grammageInput" class="block text-sm font-medium text-gray-600 mb-1">Gramatura papieru</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">g/m²</span>
+          <input type="number" id="grammageInput" placeholder="0" min="0"
+            class="w-full pr-14 pl-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg font-medium text-gray-700 input-focus transition-colors">
+        </div>
+      </div>
+      <div class="bg-blue-600 text-white rounded-lg p-6 space-y-2 text-center">
+        <p class="text-base font-medium text-blue-200">Długość papieru (metry bieżące)</p>
+        <p id="resultDisplay" class="text-4xl font-bold">0.00 m</p>
+      </div>
+      <button id="resetBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg transition-colors text-lg uppercase shadow-sm" disabled>
+        Resetuj
+      </button>
+    </div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+
+    const weightInput = document.getElementById('weightInput');
+    const widthInput = document.getElementById('widthInput');
+    const grammageInput = document.getElementById('grammageInput');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function calculate() {
+      const weight = parseFloat(weightInput.value);
+      const width = parseFloat(widthInput.value);
+      const grammage = parseFloat(grammageInput.value);
+
+      const hasValue = weightInput.value.length > 0 || widthInput.value.length > 0 || grammageInput.value.length > 0;
+      if (hasValue) {
+        resetBtn.disabled = false;
+        resetBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        resetBtn.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+      } else {
+        resetBtn.disabled = true;
+        resetBtn.classList.add('bg-gray-200', 'text-gray-700');
+        resetBtn.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+      }
+
+      if (isNaN(weight) || weight <= 0 || isNaN(width) || width <= 0 || isNaN(grammage) || grammage <= 0) {
+        resultDisplay.textContent = '0.00 m';
+        return;
+      }
+      const length = (weight * 1000000) / (width * grammage);
+      resultDisplay.textContent = `${length.toFixed(2)} m`;
+    }
+
+    weightInput.addEventListener('input', calculate);
+    widthInput.addEventListener('input', calculate);
+    grammageInput.addEventListener('input', calculate);
+    resetBtn.addEventListener('click', () => {
+      weightInput.value = '';
+      widthInput.value = '';
+      grammageInput.value = '';
+      calculate();
+    });
+    calculate();
+  </script>
+</body>
+</html>
